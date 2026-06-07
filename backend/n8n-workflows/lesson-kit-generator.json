@@ -1,0 +1,412 @@
+{
+  "name": "IntelliClassAI Lesson Generator kit",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-lesson-kit",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d590da7a-676e-4124-920b-997c82f177c6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        304
+      ],
+      "webhookId": "11c42243-930f-4301-99fc-d558cbd80cf3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "subject",
+              "value": "={{ $json.body.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "2",
+              "name": "grade",
+              "value": "={{ $json.body.grade }}",
+              "type": "string"
+            },
+            {
+              "id": "3",
+              "name": "topic",
+              "value": "={{ $json.body.topic }}",
+              "type": "string"
+            },
+            {
+              "id": "4",
+              "name": "duration",
+              "value": "={{ $json.body.duration }}",
+              "type": "string"
+            },
+            {
+              "id": "5",
+              "name": "objectives",
+              "value": "={{ $json.body.objectives }}",
+              "type": "string"
+            },
+            {
+              "id": "6",
+              "name": "language",
+              "value": "={{ $json.body.language }}",
+              "type": "string"
+            },
+            {
+              "id": "7",
+              "name": "difficulty",
+              "value": "={{ $json.body.difficulty }}",
+              "type": "string"
+            },
+            {
+              "id": "8",
+              "name": "curriculum",
+              "value": "={{ $json.body.curriculum }}",
+              "type": "string"
+            },
+            {
+              "id": "9",
+              "name": "user_id",
+              "value": "={{ $json.body.userId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "51f572dd-8a25-4f3e-a44b-7a3ff976b04e",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "2",
+              "leftValue": "={{ $json.grade }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "3",
+              "leftValue": "={{ $json.topic }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6810c685-ae70-4fcb-b63d-92a38533650f",
+      "name": "Validate Inputs",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://intelli-class-ai.lovable.app"
+            },
+            {
+              "name": "X-Title",
+              "value": "IntelliClassAI"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\"model\": \"deepseek/deepseek-chat\", \"messages\": [{\"role\": \"system\", \"content\": \"You are an expert curriculum designer and teacher. Generate complete lesson kits aligned to the specified curriculum. Return only valid JSON.\"}, {\"role\": \"user\", \"content\": \"Generate a complete lesson kit.\\n\\nSubject: \" + $json.subject + \"\\nGrade: \" + $json.grade + \"\\nTopic: \" + $json.topic + \"\\nDuration: \" + $json.duration + \"\\nLanguage: \" + $json.language + \"\\nCurriculum: \" + $json.curriculum + \"\\n\\nAlign all content to the selected curriculum.\\n\\nReturn valid JSON only.\\n\\n{\\n  \\\"lesson_plan\\\": {\\n    \\\"warm_up\\\": \\\"\\\",\\n    \\\"concept\\\": \\\"\\\",\\n    \\\"activity\\\": \\\"\\\",\\n    \\\"homework\\\": \\\"\\\"\\n  },\\n  \\\"learning_outcomes\\\": [\\n    \\\"\\\"\\n  ],\\n  \\\"competencies\\\": [\\n    \\\"\\\"\\n  ],\\n  \\\"worksheet\\\": {\\n    \\\"questions\\\": []\\n  },\\n  \\\"quiz\\\": {\\n    \\\"mcqs\\\": []\\n  },\\n  \\\"answer_key\\\": {\\n    \\\"answers\\\": []\\n  }\\n}\\n\\nRequirements:\\n* Grade appropriate\\n* Curriculum aligned\\n* Classroom ready\\n* Teacher friendly\\n\\nReturn JSON only.\"}]} }}",
+        "options": {}
+      },
+      "id": "9293e46f-5fd8-4b35-be2d-ff24eca39147",
+      "name": "OpenRouter AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        912,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "ai_text",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "553c1f49-6a53-46da-a6b9-9c890a4e2da9",
+      "name": "Extract AI Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $input.first().json.ai_text;\n\n// Clean markdown code blocks if present\nraw = raw\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\ntry {\n  const parsed = JSON.parse(raw);\n  \n  return [\n    {\n      json: {\n        success: true,\n        lesson: parsed\n      }\n    }\n  ];\n} catch (error) {\n  return [\n    {\n      json: {\n        success: false,\n        error: \"Invalid JSON from AI: \" + error.message,\n        raw_response: raw\n      }\n    }\n  ];\n}"
+      },
+      "id": "a40f592b-d85a-4a8d-b0e2-6301f49eb307",
+      "name": "Parse Lesson JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "lessons",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.user_id }}"
+            },
+            {
+              "fieldId": "subject",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.subject }}"
+            },
+            {
+              "fieldId": "grade",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.grade }}"
+            },
+            {
+              "fieldId": "topic",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.topic }}"
+            },
+            {
+              "fieldId": "duration",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.duration }}"
+            },
+            {
+              "fieldId": "objectives",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.objectives }}"
+            },
+            {
+              "fieldId": "language",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.language }}"
+            },
+            {
+              "fieldId": "difficulty",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.difficulty }}"
+            },
+            {
+              "fieldId": "curriculum",
+              "fieldValue": "={{ $(\"Normalize Input\").item.json.curriculum }}"
+            },
+            {
+              "fieldId": "lesson_json",
+              "fieldValue": "={{ JSON.stringify($json.lesson) }}"
+            }
+          ]
+        }
+      },
+      "id": "50edeef6-044e-44d8-af45-d2167e63b977",
+      "name": "Save Lesson",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "uv49SEL18je98IbA",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"lesson\": $(\"Parse Lesson JSON\").item.json.lesson } }}",
+        "options": {}
+      },
+      "id": "aef1a95a-1789-4502-9dd7-9d733e803f37",
+      "name": "Return Lesson Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1808,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": false, \"message\": \"Missing required fields\" } }}",
+        "options": {}
+      },
+      "id": "9d22f2a2-5fe8-4522-984e-9bb40b979fac",
+      "name": "Invalid Input Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        912,
+        208
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Validate Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Inputs": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Input Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter AI": {
+      "main": [
+        [
+          {
+            "node": "Extract AI Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract AI Text": {
+      "main": [
+        [
+          {
+            "node": "Parse Lesson JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Lesson JSON": {
+      "main": [
+        [
+          {
+            "node": "Save Lesson",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lesson": {
+      "main": [
+        [
+          {
+            "node": "Return Lesson Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "302dd03c-e8e0-4675-9199-1ce7066e8a0e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecb2defddc0a800b2eace09e0dd8d0b004f90a1dfe614557d0ea838defb95db1"
+  },
+  "id": "qfX3N7cfseCujO9e",
+  "tags": []
+}
