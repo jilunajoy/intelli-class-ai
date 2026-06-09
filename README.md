@@ -7,6 +7,8 @@ Generate:
 - Worksheets
 - Quizzes
 - Answer Keys
+- learning outcome
+- compitencies
 
 Tech Stack:
 
